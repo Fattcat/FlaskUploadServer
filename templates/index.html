@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <style>
+        p, h1 {
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+            color: rgb(194, 34, 34);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        h2 {
+            font-family:'Courier New', Courier, monospace;
+            text-align: center;
+            color: rgb(14, 80, 180);
+            height: auto;
+        }
+
+        h3 {
+            font-family: Arial, Helvetica, sans-serif;
+            text-align: center;
+            color: orange;
+            font-size: 30px;
+        }
+
+        .nazovsuboru {
+            color: green;
+        }
+
+        .image-container {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        .download-icon {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: white;
+            border-radius: 50%;
+            padding: 10px;
+            margin-bottom: 5px;
+            text-decoration: none;
+        }
+
+        .delete-icon {
+            width: 20px;
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background-color: rgb(255, 255, 255);
+            border-radius: 50%;
+            padding: 10px;
+            margin-bottom: 5px;
+            text-decoration: none;
+        }
+
+        .image-container img {
+            width: 150px;
+            height: 250px;
+            object-fit: cover;
+        }
+        
+        body {
+            background-color: #0a0202;
+        }
+
+
+        .ButtonColor {
+            border-radius: 30px;
+            height: 30px;
+            width: 80px;
+            color: #003333;
+            background-color: rgb(43, 255, 0);
+        }
+
+        .onediv {
+            text-align: center;
+        }
+
+    </style>
+    <script>
+        // JavaScript kód pre automatické obnovenie stránky každých 10 sekund
+        setInterval(function() {
+            window.location.reload();
+        }, 10000); // 10000 milisekúnd = 10 sekundy
+    </script>
+</head>
+<body>
+    <h1>Donkov Python Server pre uloženie suborov</h1>
+    <h1>verzia je : 1.0</h1>
+    <h2>Klikni na <strong class="nazovsuboru">"Vybrať súbor"</strong> a potom vyber<strong class="nazovsuboru"> NÁZOV SUBORU</strong class="nazovsuboru"> Potom klinki na tlačidlo <strong class="nazovsuboru">Nahrať</strong></h2>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <button><input type="submit" value="Nahrať" class="ButtonColor"></button>
+    </form>
+    <h3>Nahrané súbory</h3>
+        <div class="onediv">
+            {% for file in files %}
+            <div class="image-container">
+                <img src="{{ url_for('uploaded_file', filename=file) }}" alt="{{ file }}">
+                <a href="{{ url_for('uploaded_file', filename=file) }}" download="{{ file }}" class="download-icon">
+                    &#128190; <!-- Unicode ikona pre download -->
+                </a>
+                <form action="{{ url_for('delete_file', filename=file) }}" method="post" class="delete-icon">
+                    <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer;">
+                        &#128686; <!-- Unicode ikona pre kôš -->
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+</body>
+</html>
