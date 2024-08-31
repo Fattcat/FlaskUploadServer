@@ -4,17 +4,16 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload</title>
+    <title>Datovy-Server</title>
     <style>
         p, h1 {
             font-family: Arial, Helvetica, sans-serif;
             text-align: center;
             color: rgb(194, 34, 34);
-            font-family: Arial, Helvetica, sans-serif;
         }
 
         h2 {
-            font-family:'Courier New', Courier, monospace;
+            font-family: 'Courier New', Courier, monospace;
             text-align: center;
             color: rgb(14, 80, 180);
             height: auto;
@@ -31,10 +30,11 @@
             color: green;
         }
 
-        .image-container {
+        .file-container {
             position: relative;
             display: inline-block;
             margin: 10px;
+            text-align: center;
         }
 
         .download-icon {
@@ -44,8 +44,9 @@
             background-color: white;
             border-radius: 50%;
             padding: 10px;
-            margin-bottom: 5px;
+            margin-bottom: 20px;
             text-decoration: none;
+            font-size: 15px; /* Zvýšenie veľkosti ikony */
         }
 
         .delete-icon {
@@ -54,22 +55,28 @@
             bottom: 5px;
             left: 5px;
             background-color: rgb(255, 255, 255);
-            border-radius: 50%;
-            padding: 10px;
-            margin-bottom: 5px;
+            border-radius: 20%;
+            padding: 8px;
+            margin-bottom: 20px;
             text-decoration: none;
+            font-size: 5; /* Zvýšenie veľkosti ikony */
         }
 
-        .image-container img {
-            width: 150px;
-            height: 250px;
+        .file-container img, .file-container video {
+            width: 120px;
+            height: 210px;
             object-fit: cover;
+        }
+
+        .file-name {
+            color: green;
+            font-size: 20px;
+            margin-top: 50px;
         }
         
         body {
-            background-color: #0a0202;
+            background-color: #f0a9a9;
         }
-
 
         .ButtonColor {
             border-radius: 30px;
@@ -83,37 +90,102 @@
             text-align: center;
         }
 
+        .progress-container {
+            width: 100%;
+            background-color: #f3f3f3;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 20px;
+            background-color: #4caf50;
+            border-radius: 5px;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
     </style>
     <script>
-        // JavaScript kód pre automatické obnovenie stránky každých 10 sekund
-        setInterval(function() {
-            window.location.reload();
-        }, 10000); // 10000 milisekúnd = 10 sekundy
+        // JavaScript kód pre automatické obnovenie stránky každých 10 sekúnd
+        // setInterval(function() {
+        //     window.location.reload();
+        // }, 10000); // 10000 milisekúnd = 10 sekúnd
+
+        function uploadFiles(event) {
+            event.preventDefault();
+            const files = document.getElementById('fileInput').files;
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const formData = new FormData();
+            
+            for (let i = 0; i < files.length; i++) {
+                formData.append('file', files[i]);
+            }
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/', true);
+
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    progressBar.style.width = percentComplete + '%';
+                    progressBar.textContent = Math.round(percentComplete) + '%';
+                }
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    window.location.reload();
+                } else {
+                    alert('An error occurred!');
+                }
+            };
+
+            xhr.send(formData);
+        }
     </script>
 </head>
 <body>
     <h1>Donkov Python Server pre uloženie suborov</h1>
     <h1>verzia je : 1.0</h1>
     <h2>Klikni na <strong class="nazovsuboru">"Vybrať súbor"</strong> a potom vyber<strong class="nazovsuboru"> NÁZOV SUBORU</strong class="nazovsuboru"> Potom klinki na tlačidlo <strong class="nazovsuboru">Nahrať</strong></h2>
-    <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file">
-        <button><input type="submit" value="Nahrať" class="ButtonColor"></button>
+    <form onsubmit="uploadFiles(event)">
+        <input type="file" name="file" id="fileInput" multiple>
+        <button type="submit" class="ButtonColor">Nahrať</button>
     </form>
+    <div id="progressContainer" class="progress-container">
+        <div id="progressBar" class="progress-bar">0%</div>
+    </div>
     <h3>Nahrané súbory</h3>
-        <div class="onediv">
-            {% for file in files %}
-            <div class="image-container">
-                <img src="{{ url_for('uploaded_file', filename=file) }}" alt="{{ file }}">
-                <a href="{{ url_for('uploaded_file', filename=file) }}" download="{{ file }}" class="download-icon">
-                    &#128190; <!-- Unicode ikona pre download -->
-                </a>
-                <form action="{{ url_for('delete_file', filename=file) }}" method="post" class="delete-icon">
-                    <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer;">
-                        &#128686; <!-- Unicode ikona pre kôš -->
-                    </button>
-                </form>
-            </div>
-            {% endfor %}
+    <div class="onediv">
+        {% for file in files %}
+        <div class="file-container">
+            {% if file.endswith(('.mp4', '.webm', '.ogg')) %}
+            <!-- Ak je súbor video -->
+            <video width="150" height="250" controls>
+                <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            {% elif file.endswith(('.jpg', '.jpeg', '.png', '.bmp')) %}
+            <!-- Ak je súbor obrázok -->
+            <img src="{{ url_for('uploaded_file', filename=file) }}" alt="{{ file }}">
+            {% else %}
+            <!-- Akýkoľvek iný súbor -->
+            <p>{{ file }}</p>
+            {% endif %}
+            <a href="{{ url_for('uploaded_file', filename=file) }}" download="{{ file }}" class="download-icon">
+                &#128190; <!-- Unicode ikona pre download -->
+            </a>
+            <form action="{{ url_for('delete_file', filename=file) }}" method="post" class="delete-icon">
+                <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer;">
+                    &#128686; <!-- Unicode ikona pre kôš -->
+                </button>
+            </form>
+            <div class="file-name">{{ file }}</div>
         </div>
+        {% endfor %}
+    </div>
 </body>
 </html>
