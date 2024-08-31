@@ -3,7 +3,7 @@ import os
 
 app = Flask(__name__)
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
-ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'bmp', 'mp4', 'mp3'}
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'bmp', 'mp4', 'mp3'} # Add more if u need to
 
 # Vytvorte priečinok 'uploads' ak neexistuje
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -44,4 +44,4 @@ def delete_file(filename):
     return redirect(url_for('upload_file'))
 
 if __name__ == "__main__":
-    app.run(host='192.168.1.4', port=5000, debug=True)
+    app.run(host='YourIP-Address', port=5000, debug=True)
