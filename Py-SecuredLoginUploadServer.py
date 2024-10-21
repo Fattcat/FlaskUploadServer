@@ -1,15 +1,21 @@
 from flask import Flask, render_template, request, send_from_directory, redirect, url_for, session, render_template_string
 import os
+import logging
 
 app = Flask(__name__)
 app.secret_key = 'tajne-heslo'  # Bezpečnostný kľúč pre relácie (sessions)
 
+# Priečinok pre nahrané súbory
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'uploads')
 
 # Vytvorte priečinok 'uploads' ak neexistuje
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # Maximálna veľkosť súboru 50 MB
+
+# Nastavenie logovania chýb
+logging.basicConfig(level=logging.ERROR)
 
 # HTML kód pre login stránku
 html_content_index = """
@@ -74,22 +80,34 @@ def upload_file():
     
     if request.method == 'POST':
         files = request.files.getlist('file')  # Získanie všetkých nahraných súborov
+        if not files or files == ['']:
+            return render_template('index.html', error="Žiadny súbor nebol vybraný!")
+
         for file in files:
             if file.filename == '':
                 continue  # Ak žiadny súbor nebol vybraný
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-            file.save(filepath)  # Uloženie každého súboru
+            try:
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+                file.save(filepath)  # Uloženie každého súboru
+            except Exception as e:
+                app.logger.error(f"Chyba pri ukladaní súboru: {str(e)}")
+                return render_template('index.html', error=f"Nastala chyba pri ukladaní súboru: {str(e)}")
 
         return redirect(url_for('upload_file'))
 
     # Získanie zoznamu nahratých súborov
     files = os.listdir(app.config['UPLOAD_FOLDER'])
-    return render_template('index.html', files=files)
+    return render_template('index.html', files=files, error=None)
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     if 'logged_in' not in session:
         return redirect(url_for('home'))
+    
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if not os.path.exists(file_path):
+        return "Súbor neexistuje", 404
+
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/delete/<filename>', methods=['POST'])
@@ -102,5 +120,11 @@ def delete_file(filename):
         os.remove(file_path)
     return redirect(url_for('upload_file'))
 
+# Pridanie spracovania výnimiek a logovanie chýb
+@app.errorhandler(Exception)
+def handle_exception(e):
+    app.logger.error(f"Nastala chyba: {str(e)}")
+    return "An error occurred!", 500
+
 if __name__ == "__main__":
-    app.run(host='192.168.1.4', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
