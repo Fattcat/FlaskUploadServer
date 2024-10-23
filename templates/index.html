@@ -6,95 +6,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Datovy-Server</title>
     <style>
-        p, h1 {
-            font-family: Arial, Helvetica, sans-serif;
-            text-align: center;
-            color: rgb(194, 34, 34);
-        }
-
-        h2 {
-            font-family: 'Courier New', Courier, monospace;
-            text-align: center;
-            color: rgb(14, 80, 180);
-            height: auto;
-        }
-
-        h3 {
-            font-family: Arial, Helvetica, sans-serif;
-            text-align: center;
-            color: orange;
-            font-size: 30px;
-        }
-
-        .nazovsuboru {
-            color: green;
-        }
-
-        .file-container {
-            position: relative;
-            display: inline-block;
-            margin: 10px;
-            text-align: center;
-        }
-
-        .download-icon {
-            position: absolute;
-            bottom: 5px;
-            right: 5px;
-            background-color: white;
-            border-radius: 50%;
-            padding: 10px;
-            margin-bottom: 20px;
-            text-decoration: none;
-            font-size: 15px; /* Zvýšenie veľkosti ikony */
-        }
-
-        .delete-icon {
-            width: 20px;
-            position: absolute;
-            bottom: 5px;
-            left: 5px;
-            background-color: rgb(255, 255, 255);
-            border-radius: 20%;
-            padding: 8px;
-            margin-bottom: 20px;
-            text-decoration: none;
-            font-size: 5; /* Zvýšenie veľkosti ikony */
-        }
-
-        .file-container img, .file-container video {
-            width: 120px;
-            height: 210px;
-            object-fit: cover;
-        }
-
-        .file-name {
-            color: green;
-            font-size: 20px;
-            margin-top: 50px;
-        }
-        
         body {
-            background-color: #f0a9a9;
+            background-color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            color: #333;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            color: #007bff;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: auto;
+            padding: 20px;
+            background: rgb(109, 75, 75);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .ButtonColor {
             border-radius: 30px;
-            height: 30px;
-            width: 80px;
-            color: #003333;
-            background-color: rgb(43, 255, 0);
+            height: 60px;
+            width: 130px;
+            color: #000000;
+            background-color: #007bff;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            font-style: inherit;
+            margin-top: 10px;
         }
 
-        .onediv {
-            text-align: center;
+        .ButtonColor:hover {
+            background-color: #15c43b;
+        }
+
+        input[type="file"] {
+            display: block;
+            margin: 20px auto;
+            font-size: 16px;
         }
 
         .progress-container {
             width: 100%;
-            background-color: #f3f3f3;
+            background-color: #17cf98;
             border-radius: 5px;
-            margin-top: 10px;
+            margin: 20px auto;
+            max-width: 500px;
         }
 
         .progress-bar {
@@ -104,28 +66,118 @@
             border-radius: 5px;
             text-align: center;
             line-height: 20px;
-            color: white;
+            color: rgb(0, 0, 0);
         }
+
+        /* Flexbox pre súbory */
+        .files-wrapper {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px auto;
+            max-width: calc(100% - 200px);
+        }
+
+        .file-container {
+            width: 200px;
+            height: 250px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            text-align: center;
+            padding: 10px;
+            border: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .file-container img {
+            width: 90%;
+            height: 50%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .file-name {
+            font-size: 20px;
+            color: #333;
+            margin-top: 1px;
+        }
+
+        .download-icon, .delete-icon {
+            display: inline;
+            padding: 8px;
+            border-radius: 50%;
+            background-color: rgb(167, 25, 25);
+            text-decoration: none;
+            font-size: 30px;
+            margin-top: 1px;
+            cursor: pointer;
+        }
+
+        .download-icon:hover, .delete-icon:hover {
+            background-color: #48a82f;
+        }
+
+        .download-icon {
+            color: green;
+        }
+
+        .delete-icon {
+            color: red;
+        }
+
+        /* Maximálna veľkosť obrázka */
+        .fullscreen-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            display: none;
+        }
+
+        .fullscreen-container img {
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .maximize-icon, .minimize-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 50%;
+        }
+
     </style>
     <script>
-        // JavaScript kód pre automatické obnovenie stránky každých 10 sekúnd
-        // setInterval(function() {
-        //     window.location.reload();
-        // }, 10000); // 10000 milisekúnd = 10 sekúnd
-
         function uploadFiles(event) {
             event.preventDefault();
             const files = document.getElementById('fileInput').files;
-            const progressContainer = document.getElementById('progressContainer');
             const progressBar = document.getElementById('progressBar');
+            const progressContainer = document.getElementById('progressContainer');
             const formData = new FormData();
-            
+
             for (let i = 0; i < files.length; i++) {
                 formData.append('file', files[i]);
             }
 
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/', true);
+            xhr.open('POST', '/upload', true);
 
             xhr.upload.onprogress = function(e) {
                 if (e.lengthComputable) {
@@ -139,53 +191,83 @@
                 if (xhr.status === 200) {
                     window.location.reload();
                 } else {
-                    alert('An error occurred!');
+                    alert('An error occurred during file upload.');
                 }
+            };
+
+            xhr.onerror = function() {
+                alert('An error occurred while trying to upload the files.');
             };
 
             xhr.send(formData);
         }
+
+        // Funkcie pre maximalizáciu a minimalizáciu obrázka
+        function maximizeImage(imgSrc) {
+            const fullscreenContainer = document.getElementById('fullscreenContainer');
+            const fullscreenImage = document.getElementById('fullscreenImage');
+            fullscreenImage.src = imgSrc;
+            fullscreenContainer.style.display = 'flex';
+        }
+
+        function minimizeImage() {
+            const fullscreenContainer = document.getElementById('fullscreenContainer');
+            fullscreenContainer.style.display = 'none';
+        }
     </script>
 </head>
 <body>
-    <h1>Donkov Python Server pre uloženie suborov</h1>
-    <h1>verzia je : 1.0</h1>
-    <h2>Klikni na <strong class="nazovsuboru">"Vybrať súbor"</strong> a potom vyber<strong class="nazovsuboru"> NÁZOV SUBORU</strong class="nazovsuboru"> Potom klinki na tlačidlo <strong class="nazovsuboru">Nahrať</strong></h2>
-    <form onsubmit="uploadFiles(event)">
-        <input type="file" name="file" id="fileInput" multiple>
-        <button type="submit" class="ButtonColor">Nahrať</button>
-    </form>
-    <div id="progressContainer" class="progress-container">
-        <div id="progressBar" class="progress-bar">0%</div>
-    </div>
-    <h3>Nahrané súbory</h3>
-    <div class="onediv">
-        {% for file in files %}
-        <div class="file-container">
-            {% if file.endswith(('.mp4', '.webm', '.ogg')) %}
-            <!-- Ak je súbor video -->
-            <video width="150" height="250" controls>
-                <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
-            {% elif file.endswith(('.jpg', '.jpeg', '.png', '.bmp')) %}
-            <!-- Ak je súbor obrázok -->
-            <img src="{{ url_for('uploaded_file', filename=file) }}" alt="{{ file }}">
-            {% else %}
-            <!-- Akýkoľvek iný súbor -->
-            <p>{{ file }}</p>
-            {% endif %}
-            <a href="{{ url_for('uploaded_file', filename=file) }}" download="{{ file }}" class="download-icon">
-                &#128190; <!-- Unicode ikona pre download -->
-            </a>
-            <form action="{{ url_for('delete_file', filename=file) }}" method="post" class="delete-icon">
-                <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer;">
-                    &#128686; <!-- Unicode ikona pre kôš -->
-                </button>
-            </form>
-            <div class="file-name">{{ file }}</div>
+    <div class="container">
+        <h1>Donkov Python Server pre uloženie súborov</h1>
+        <h2>Verzia: 1.0</h2>
+        <center><p class="postupPreUpload">1. Klikni na "vybrať súbory"</p></center>
+        <center><p class="postupPreUpload">2. Potom Klikni na "Nahrať súbory"</p></center>
+        <form onsubmit="uploadFiles(event)" enctype="multipart/form-data">
+            <input type="file" name="file" id="fileInput" multiple>
+            <center><button type="submit" class="ButtonColor">Nahrať súbory</button></center>
+        </form>
+
+        <div id="progressContainer" class="progress-container">
+            <div id="progressBar" class="progress-bar">0%</div>
         </div>
-        {% endfor %}
+
+        <h2>Nahrané súbory</h2>
+        <br>
+        <br>
+        <div class="files-wrapper">
+            {% for file in files %}
+            <div class="file-container">
+                {% if file.endswith(('.mp4', '.webm', '.ogg')) %}
+                <video controls>
+                    <source src="{{ url_for('uploaded_file', filename=file) }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                {% elif file.endswith(('.jpg', '.jpeg', '.png', '.bmp')) %}
+                <img src="{{ url_for('uploaded_file', filename=file) }}" alt="{{ file }}">
+                <span class="maximize-icon" onclick="maximizeImage('{{ url_for('uploaded_file', filename=file) }}')">&#x219F;</span> <!-- Maximize arrow icon -->
+                {% elif file.endswith(('.mp3', '.wav')) %}
+                <img src="{{ url_for('uploaded_file', filename='/flower.jpg') }}" alt="Song Image">
+                {% else %}
+                <p>{{ file }}</p>
+                {% endif %}
+                <div class="file-name">{{ file }}</div>
+                <a href="{{ url_for('uploaded_file', filename=file) }}" download="{{ file }}" class="download-icon">
+                    &#128190;
+                </a>
+                <form action="{{ url_for('delete_file', filename=file) }}" method="post" class="delete-icon" style="display:inline;">
+                    <button type="submit" style="background: none; border: none; cursor: pointer; color: red;">
+                        &#128686;
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Fullscreen modal -->
+        <div id="fullscreenContainer" class="fullscreen-container">
+            <img id="fullscreenImage" src="#" alt="Fullscreen Image">
+            <span class="minimize-icon" onclick="minimizeImage()">&#x21A1;</span> <!-- Minimize arrow icon -->
+        </div>
     </div>
 </body>
 </html>
