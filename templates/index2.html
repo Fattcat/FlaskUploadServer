@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        body {
+            background: #121212;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .login-box {
+            background: #1e1e1e;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            animation: fadeIn 2s ease;
+        }
+
+        input {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            background: #2c2c2c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button {
+            background: #4caf50;
+            border: none;
+            padding: 10px;
+            color: white;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #45a049;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .flash {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .flash.success { background: #4caf50; }
+        .flash.danger { background: #f44336; }
+    </style>
+</head>
+<body>
+    <form class="login-box" action="{{ url_for('login') }}" method="post">
+        <h2>Prihlásenie</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% for category, message in messages %}
+            <div class="flash {{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endwith %}
+        <input type="text" name="username" placeholder="Používateľské meno" required>
+        <input type="password" name="password" placeholder="Heslo" required>
+        <button type="submit">Prihlásiť sa</button>
+    </form>
+</body>
+</html>
