@@ -1,0 +1,26 @@
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, flash from werkzeug.utils import secure_filename import os
+
+app = Flask(name) app.secret_key = 'tajny_kluc'
+
+Konfigurácia cesty na ukladanie súborov
+
+UPLOAD_BASE_FOLDER = os.path.join(os.getcwd(), 'pouzivatelia') os.makedirs(UPLOAD_BASE_FOLDER, exist_ok=True)
+
+Ukážkoví používatelia (v produkcii použi databázu!)
+
+POUZIVATELIA = { 'admin': 'heslo123', 'janko': 'tajneheslo', 'peter': 'abc123', }
+
+@app.route('/') def index(): if 'username' in session: return redirect(url_for('dashboard')) return render_template('login.html')
+
+@app.route('/login', methods=['POST']) def login(): username = request.form['username'] password = request.form['password'] if username in POUZIVATELIA and POUZIVATELIA[username] == password: session['username'] = username # Vytvorenie priečinka pre používateľa, ak ešte neexistuje user_folder = os.path.join(UPLOAD_BASE_FOLDER, username) os.makedirs(user_folder, exist_ok=True) flash('Prihlásenie úspešné.', 'success') return redirect(url_for('dashboard')) flash('Nesprávne meno alebo heslo.', 'danger') return redirect(url_for('index'))
+
+@app.route('/logout') def logout(): session.pop('username', None) return redirect(url_for('index'))
+
+@app.route('/dashboard') def dashboard(): if 'username' not in session: return redirect(url_for('index')) username = session['username'] user_folder = os.path.join(UPLOAD_BASE_FOLDER, username) files = os.listdir(user_folder) return render_template('dashboard.html', username=username, files=files)
+
+@app.route('/upload', methods=['POST']) def upload(): if 'username' not in session: return redirect(url_for('index')) file = request.files['file'] if file: filename = secure_filename(file.filename) user_folder = os.path.join(UPLOAD_BASE_FOLDER, session['username']) file.save(os.path.join(user_folder, filename)) flash('Súbor bol úspešne nahraný.', 'success') return redirect(url_for('dashboard'))
+
+@app.route('/download/<filename>') def download(filename): if 'username' not in session: return redirect(url_for('index')) user_folder = os.path.join(UPLOAD_BASE_FOLDER, session['username']) return send_from_directory(user_folder, filename)
+
+if name == 'main': app.run(debug=True)
+
