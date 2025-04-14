@@ -2,11 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, session, s
 
 app = Flask(name) app.secret_key = 'tajny_kluc'
 
-Konfigurácia cesty na ukladanie súborov
+Konfigurácia cesty na ukladanie súborov 
 
 UPLOAD_BASE_FOLDER = os.path.join(os.getcwd(), 'pouzivatelia') os.makedirs(UPLOAD_BASE_FOLDER, exist_ok=True)
 
-Ukážkoví používatelia (v produkcii použi databázu!)
+Ukážkoví používatelia (v produkcii použi databázu!) 
 
 POUZIVATELIA = { 'admin': 'heslo123', 'janko': 'tajneheslo', 'peter': 'abc123', }
 
@@ -20,7 +20,6 @@ POUZIVATELIA = { 'admin': 'heslo123', 'janko': 'tajneheslo', 'peter': 'abc123', 
 
 @app.route('/upload', methods=['POST']) def upload(): if 'username' not in session: return redirect(url_for('index')) file = request.files['file'] if file: filename = secure_filename(file.filename) user_folder = os.path.join(UPLOAD_BASE_FOLDER, session['username']) file.save(os.path.join(user_folder, filename)) flash('Súbor bol úspešne nahraný.', 'success') return redirect(url_for('dashboard'))
 
-@app.route('/download/<filename>') def download(filename): if 'username' not in session: return redirect(url_for('index')) user_folder = os.path.join(UPLOAD_BASE_FOLDER, session['username']) return send_from_directory(user_folder, filename)
+@app.route('/download/') def download(filename): if 'username' not in session: return redirect(url_for('index')) user_folder = os.path.join(UPLOAD_BASE_FOLDER, session['username']) return send_from_directory(user_folder, filename)
 
 if name == 'main': app.run(debug=True)
-
